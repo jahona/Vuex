@@ -20,6 +20,14 @@ const store = new Vuex.Store({
     },
     getCount_added1000: (state, getters) => {
       return getters.getCount_added100 + 1000;
+    },
+
+    /*
+      computed 는 캐시 기능을 제공하지만, 
+      메서드를 통한 getter 는 호출될때마다 캐시가 되지 않는다.
+    */
+    getCountFn: (state) => () => {
+      return state.count + 1;
     }
   }
 })
@@ -53,6 +61,9 @@ const Counter = {
       <div>
         getCount_added1000: {{ getCount_added1000 }}
       </div>
+      <div>
+      getCountFn: {{ getCountFn() }}
+      </div>
     </div>
   `,
   data() {
@@ -82,7 +93,8 @@ const Counter = {
     }),
     ...mapGetters([
       'getCount_added100',
-      'getCount_added1000'
+      'getCount_added1000',
+      'getCountFn'
     ])
   }
 }
