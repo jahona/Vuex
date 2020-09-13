@@ -49,6 +49,21 @@ const store = new Vuex.Store({
       setTimeout(() => {
         commit('increment2', n)
       }, 1000)
+    },
+
+    actionA ({ commit }) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // mutation 호출
+          commit('increment');
+          resolve();
+        }, 1000)
+      })
+    },
+    actionB ({ commit }) {
+      return this.dispatch('actionA').then(() => {
+        commit('increment2', 1000);
+      })
     }
   }
 })
@@ -73,9 +88,8 @@ const Counter = {
       <div>
         count: {{ count }}
       </div>
-      <button @click="add_random()">add_random()</button>
-      <button @click="add_2x(100)">add_2x(100)</button>
-      <button @click="incrementAsync(1)">incrementAsync</button>
+      <button @click="actionA()">actionA()</button>
+      <button @click="actionB()">actionB()</button>
     </div>
   `,
   data() {
@@ -106,7 +120,7 @@ const Counter = {
     ...mapGetters([
       'getCount_added100',
       'getCount_added1000',
-      'getCountFn'
+      'getCountFn',
     ])
   },
   methods: {
@@ -131,7 +145,11 @@ const Counter = {
       add_random: 'increment',
       add_2x: 'increment2',
       incrementAsync: 'incrementAsync'
-    })
+    }),
+    ...mapActions([
+      'actionA',
+      'actionB'
+    ])
   }
 }
 
