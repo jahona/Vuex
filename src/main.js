@@ -1,7 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import Vuex, { mapState } from 'vuex'
+import Vuex, { mapState, mapGetters } from 'vuex'
 
 Vue.use(Vuex)
 
@@ -12,6 +12,14 @@ const store = new Vuex.Store({
   mutations: {
     increment (state) {
       state.count++
+    }
+  },
+  getters: {
+    getCount_added100: (state) => {
+      return state.count + 100;
+    },
+    getCount_added1000: (state, getters) => {
+      return getters.getCount_added100 + 1000;
     }
   }
 })
@@ -39,6 +47,12 @@ const Counter = {
       <div>
         countPlusLocalState: {{ countPlusLocalState }}
       </div>
+      <div>
+        getCount_added100: {{ getCount_added100 }}
+      </div>
+      <div>
+        getCount_added1000: {{ getCount_added1000 }}
+      </div>
     </div>
   `,
   data() {
@@ -49,27 +63,28 @@ const Counter = {
   /*
     mapState 를 통해 계산된 getter 함수를 생성하여 키 입력을 줄일 수 있다.
   */
-  computed: mapState({
+  computed: {
     /*
-      count(state) { return state.count; } 를 의미 
+      객체 전개 연산자를 통해 mapState 와 mapGetters 를 최종 객체로 하여 computed 에 전달할 수 있다.
     */
-    count: state => state.count,
-
-    /*
-      this 를 사용하여 로컬 상태에 접근할려면 일반 함수를 생성해서 사용해야 한다.
-    */
-    countPlusLocalState(state) {
-      return state.count + this.localCount
-    }
-  })
-
-  /*
-  매핑된 계산된 속성의 이름이 상태 하위 트리와 같을때, 문자열 배열을 mapState 에 전달 가능
-  */
-  // computed: mapState([
-  //   'count'
-  // ])
+    ...mapState({
+      /*
+        count(state) { return state.count; } 를 의미 
+      */
+      count: state => state.count,
   
+      /*
+        this 를 사용하여 로컬 상태에 접근할려면 일반 함수를 생성해서 사용해야 한다.
+      */
+      countPlusLocalState(state) {
+        return state.count + this.localCount
+      },
+    }),
+    ...mapGetters([
+      'getCount_added100',
+      'getCount_added1000'
+    ])
+  }
 }
 
 /* eslint-disable no-new */
