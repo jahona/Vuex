@@ -1,7 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import Vuex, { mapState, mapGetters } from 'vuex'
+import Vuex, { mapState, mapGetters, mapMutations } from 'vuex'
 
 Vue.use(Vuex)
 
@@ -12,6 +12,12 @@ const store = new Vuex.Store({
   mutations: {
     increment (state) {
       state.count++
+    },
+    increment2 (state, n) {
+      state.count += n
+    },
+    increment3 (state, n) {
+      state.count += n
     }
   },
   getters: {
@@ -52,18 +58,9 @@ const Counter = {
       <div>
         count: {{ count }}
       </div>
-      <div>
-        countPlusLocalState: {{ countPlusLocalState }}
-      </div>
-      <div>
-        getCount_added100: {{ getCount_added100 }}
-      </div>
-      <div>
-        getCount_added1000: {{ getCount_added1000 }}
-      </div>
-      <div>
-      getCountFn: {{ getCountFn() }}
-      </div>
+      <button @click="increment">+</button>
+      <button @click="add(10)">+</button>
+      <button @click="add2(100)">+</button>
     </div>
   `,
   data() {
@@ -96,6 +93,21 @@ const Counter = {
       'getCount_added1000',
       'getCountFn'
     ])
+  },
+  methods: {
+    /*
+      this.$store.commit('xxx') 를 통해 Mutation 를 호출하거나,
+      mapMutations 헬퍼 함수를 이용하여 store.commit 호출에 매핑시킬 수 있다.(루트 store에 주입 필요)
+    */
+    ...mapMutations([
+      'increment'
+    ]),
+    ...mapMutations({
+      add: 'increment2'
+    }),
+    add2(n) {
+      this.$store.commit('increment3', n);
+    }
   }
 }
 
