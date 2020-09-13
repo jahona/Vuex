@@ -1,7 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import Vuex, { mapState, mapGetters, mapMutations } from 'vuex'
+import Vuex, { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 
 Vue.use(Vuex)
 
@@ -35,6 +35,21 @@ const store = new Vuex.Store({
     getCountFn: (state) => () => {
       return state.count + 1;
     }
+  },
+  actions: {
+    increment(context) {
+      var rn = Math.random();
+      context.commit('increment2', Math.floor(rn * 10 + 1));
+    },
+    increment2({ commit }, n) {
+      commit('increment2', n);
+      commit('increment2', n);
+    },
+    incrementAsync({ commit }, n) {
+      setTimeout(() => {
+        commit('increment2', n)
+      }, 1000)
+    }
   }
 })
 
@@ -58,9 +73,9 @@ const Counter = {
       <div>
         count: {{ count }}
       </div>
-      <button @click="increment">+</button>
-      <button @click="add(10)">+</button>
-      <button @click="add2(100)">+</button>
+      <button @click="add_random()">add_random()</button>
+      <button @click="add_2x(100)">add_2x(100)</button>
+      <button @click="incrementAsync(1)">incrementAsync</button>
     </div>
   `,
   data() {
@@ -107,7 +122,16 @@ const Counter = {
     }),
     add2(n) {
       this.$store.commit('increment3', n);
-    }
+    },
+    /*
+      this.$store.dispatch('xxx') 를 통해 action 을 호출하거나,
+      mapActions 헬퍼 함수를 이용하여 store.dispatch 호출에 매핑시킬 수 있다.
+    */
+    ...mapActions({
+      add_random: 'increment',
+      add_2x: 'increment2',
+      incrementAsync: 'incrementAsync'
+    })
   }
 }
 
