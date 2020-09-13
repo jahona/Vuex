@@ -5,7 +5,8 @@ import Vuex, { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 
 Vue.use(Vuex)
 
-const store = new Vuex.Store({
+const moduleA = {
+  namespaced: true,
   state: {
     count: 0
   },
@@ -61,11 +62,20 @@ const store = new Vuex.Store({
       })
     },
     actionB ({ commit }) {
-      return this.dispatch('actionA').then(() => {
+      /*
+        action 에서 action 을 호출할때는 모듈 경로를 적어줘야 함
+      */
+      return this.dispatch('moduleA/actionA').then(() => {
         commit('increment2', 1000);
       })
     }
   }
+}
+
+const store = new Vuex.Store({
+  modules: {
+    moduleA: moduleA
+  }  
 })
 
 Vue.config.productionTip = false
@@ -88,6 +98,21 @@ const Counter = {
       <div>
         count: {{ count }}
       </div>
+      <div>
+        getCount_added100: {{ getCount_added100 }}
+      </div>
+      <div>
+        getCount_added1000: {{ getCount_added1000 }}
+      </div>
+      <div>
+        getCountFn: {{ getCountFn() }}
+      </div>
+      <button @click="increment">increment</button>
+      <button @click="add(10)">add(10)</button>
+      <button @click="add2(100)">add2(100)</button>
+      <button @click="add_random()">add_random()</button>
+      <button @click="add_2x(100)">add_2x(100)</button>
+      <button @click="incrementAsync(1)">incrementAsync</button>
       <button @click="actionA()">actionA()</button>
       <button @click="actionB()">actionB()</button>
     </div>
@@ -107,17 +132,19 @@ const Counter = {
     ...mapState({
       /*
         count(state) { return state.count; } 를 의미 
+
+        state 에 접근할때 모듈 경로를 적어줘야 함
       */
-      count: state => state.count,
+      count: state => state.moduleA.count,
   
       /*
         this 를 사용하여 로컬 상태에 접근할려면 일반 함수를 생성해서 사용해야 한다.
       */
       countPlusLocalState(state) {
-        return state.count + this.localCount
+        return state.moduleA.count + this.localCount
       },
     }),
-    ...mapGetters([
+    ...mapGetters('moduleA', [
       'getCount_added100',
       'getCount_added1000',
       'getCountFn',
@@ -128,28 +155,28 @@ const Counter = {
       this.$store.commit('xxx') 를 통해 Mutation 를 호출하거나,
       mapMutations 헬퍼 함수를 이용하여 store.commit 호출에 매핑시킬 수 있다.(루트 store에 주입 필요)
     */
-    ...mapMutations([
+    ...mapMutations('moduleA', [
       'increment'
     ]),
-    ...mapMutations({
+    ...mapMutations('moduleA', {
       add: 'increment2'
     }),
     add2(n) {
-      this.$store.commit('increment3', n);
+      this.$store.commit('moduleA/increment3', n);
     },
     /*
       this.$store.dispatch('xxx') 를 통해 action 을 호출하거나,
       mapActions 헬퍼 함수를 이용하여 store.dispatch 호출에 매핑시킬 수 있다.
     */
-    ...mapActions({
+    ...mapActions('moduleA', {
       add_random: 'increment',
       add_2x: 'increment2',
       incrementAsync: 'incrementAsync'
     }),
-    ...mapActions([
-      'actionA',
-      'actionB'
-    ])
+    ...mapActions('moduleA', {
+      actionA: 'actionA',
+      actionB: 'actionB'
+    })
   }
 }
 
